@@ -1,75 +1,87 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-Future main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+void main() => runApp(MyApp());
 
-  await Permission.camera.request();
-  await Permission.microphone.request();
-
-  runApp(MyApp());
-}
-
-class MyApp extends StatefulWidget {
-  @override
-  _MyAppState createState() => new _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: InAppWebViewPage(),
+      title: 'YouTube Video',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: VideoPage(),
     );
   }
 }
 
-class InAppWebViewPage extends StatefulWidget {
+class VideoPage extends StatefulWidget {
+  final String videoId = "PkZNo7MFNFg"; // Extract the video ID from the URL
+
   @override
-  _InAppWebViewPageState createState() => new _InAppWebViewPageState();
+  _VideoPageState createState() => _VideoPageState();
 }
 
-class _InAppWebViewPageState extends State<InAppWebViewPage> {
-  InAppWebViewController? webViewController;
+class _VideoPageState extends State<VideoPage> {
+  late YoutubePlayerController _controller;
+  late SharedPreferences _prefs;
+
+  @override
+  void initState() {
+    super.initState();
+    _initPrefs();
+    _controller = YoutubePlayerController(
+      initialVideoId: widget.videoId,
+      flags: YoutubePlayerFlags(
+        autoPlay: true,
+        controlsVisibleAtStart: true,
+        hideControls: false,
+      ),
+    )..addListener(_videoListener);
+  }
+
+  _initPrefs() async {
+    _prefs = await SharedPreferences.getInstance();
+    final time = _prefs.getInt('video_time_${widget.videoId}') ?? 0;
+    _controller.seekTo(Duration(seconds: time));
+  }
+
+  _videoListener() async {
+    if (_controller.value.playerState == PlayerState.ended) {
+      await _prefs.setInt(
+        'video_time_${widget.videoId}',
+        _controller.value.position.inSeconds,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: TextField(),
-      ),
       body: Container(
-        child: Column(
-          children: <Widget>[
-            Expanded(
-              child: Container(
-                child: InAppWebView(
-                  initialUrlRequest:
-                      URLRequest(url: Uri.parse("https://jump.chat/c/")),
-                  initialOptions: InAppWebViewGroupOptions(
-                    crossPlatform: InAppWebViewOptions(
-                      mediaPlaybackRequiresUserGesture: false,
-                      // debuggingEnabled: true,
-                    ),
-                  ),
-                  onWebViewCreated: (InAppWebViewController controller) {
-                    webViewController = controller;
-                  },
-                  androidOnPermissionRequest:
-                      (InAppWebViewController controller, String origin,
-                          List<String> resources) async {
-                    return PermissionRequestResponse(
-                        resources: resources,
-                        action: PermissionRequestResponseAction.GRANT);
-                  },
-                ),
-              ),
-            ),
-          ],
+        color: Colors.lightBlue,
+        child: Center(
+          child: YoutubePlayer(
+            controller: _controller,
+            showVideoProgressIndicator: true,
+            progressIndicatorColor: Colors.blueAccent,
+            onReady: () {
+              // Your code here when the player is ready.
+            },
+            onEnded: (metaData) {
+              // Video ended.
+            },
+          ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }

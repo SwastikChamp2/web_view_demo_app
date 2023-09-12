@@ -10,7 +10,10 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_inappwebview: ^5.7.2+3
-  permission_handler: ^10.4.3
+  shared_preferences: ^2.2.1
+  youtube_player_flutter: ^8.1.2
+  
+ 
 
 dev_dependencies:
   flutter_lints: ^2.0.0
