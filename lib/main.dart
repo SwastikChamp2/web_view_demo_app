@@ -9,6 +9,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'YouTube Video',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
 }
 
 class VideoPage extends StatefulWidget {
-  final String videoId = "PkZNo7MFNFg"; // Extract the video ID from the URL
+  final String videoId = "kUMe1FH4CHE"; // Extract the video ID from the URL
 
   @override
   _VideoPageState createState() => _VideoPageState();
@@ -38,6 +39,7 @@ class _VideoPageState extends State<VideoPage> {
         autoPlay: true,
         controlsVisibleAtStart: true,
         hideControls: false,
+        enableCaption: false,
       ),
     )..addListener(_videoListener);
   }
