@@ -13,13 +13,50 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: VideoPage(),
+      home: Homepage(),
+    );
+  }
+}
+
+class Homepage extends StatefulWidget {
+  const Homepage({super.key});
+
+  @override
+  State<Homepage> createState() => _HomepageState();
+}
+
+class _HomepageState extends State<Homepage> {
+  String text = '';
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Center(
+            child: Column(children: [
+          SizedBox(
+            height: 200,
+          ),
+          TextField(
+            autofocus: false,
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => VideoPage()),
+              );
+            },
+            child: Text('Click'),
+          ),
+        ])),
+      ),
     );
   }
 }
 
 class VideoPage extends StatefulWidget {
-  final String videoId = "kUMe1FH4CHE"; // Extract the video ID from the URL
+  final String videoId = "OXGznpKZ_sA"; // Extract the video ID from the URL
 
   @override
   _VideoPageState createState() => _VideoPageState();
@@ -38,6 +75,7 @@ class _VideoPageState extends State<VideoPage> {
       flags: YoutubePlayerFlags(
         autoPlay: true,
         controlsVisibleAtStart: true,
+        hideThumbnail: true,
         hideControls: false,
         enableCaption: false,
       ),
